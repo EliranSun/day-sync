@@ -1,0 +1,185 @@
+import { useState, useEffect, useRef } from 'react';
+import type { TimeBlock, TimeString } from '../types';
+import { COLOR_PALETTE, DEFAULT_COLOR } from '../constants';
+
+interface BlockFormModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSave: (block: Omit<TimeBlock, 'id'>) => void;
+  onUpdate?: (block: TimeBlock) => void;
+  onDelete?: (blockId: string) => void;
+  editBlock?: TimeBlock | null;
+  defaultStartTime?: TimeString;
+  defaultEndTime?: TimeString;
+}
+
+export function BlockFormModal({
+  isOpen,
+  onClose,
+  onSave,
+  onUpdate,
+  onDelete,
+  editBlock,
+  defaultStartTime = '09:00',
+  defaultEndTime = '09:30',
+}: BlockFormModalProps) {
+  const [label, setLabel] = useState('');
+  const [startTime, setStartTime] = useState(defaultStartTime);
+  const [endTime, setEndTime] = useState(defaultEndTime);
+  const [color, setColor] = useState(DEFAULT_COLOR);
+  const backdropRef = useRef<HTMLDivElement>(null);
+  const sheetRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      if (editBlock) {
+        setLabel(editBlock.label);
+        setStartTime(editBlock.startTime);
+        setEndTime(editBlock.endTime);
+        setColor(editBlock.color);
+      } else {
+        setLabel('');
+        setStartTime(defaultStartTime);
+        setEndTime(defaultEndTime);
+        setColor(DEFAULT_COLOR);
+      }
+    }
+  }, [isOpen, editBlock, defaultStartTime, defaultEndTime]);
+
+  // Handle visual viewport resize (keyboard open/close)
+  useEffect(() => {
+    if (!isOpen || !sheetRef.current) return;
+
+    const vv = window.visualViewport;
+    if (!vv) return;
+
+    const handleResize = () => {
+      if (sheetRef.current) {
+        const offset = window.innerHeight - vv.height - vv.offsetTop;
+        sheetRef.current.style.transform = offset > 0 ? `translateY(-${offset}px)` : '';
+      }
+    };
+
+    vv.addEventListener('resize', handleResize);
+    vv.addEventListener('scroll', handleResize);
+    return () => {
+      vv.removeEventListener('resize', handleResize);
+      vv.removeEventListener('scroll', handleResize);
+    };
+  }, [isOpen]);
+
+  if (!isOpen) return null;
+
+  const isValid = label.trim().length > 0 && startTime < endTime;
+
+  const handleSave = () => {
+    if (!isValid) return;
+    if (editBlock && onUpdate) {
+      onUpdate({ ...editBlock, label: label.trim(), startTime, endTime, color });
+    } else {
+      onSave({ label: label.trim(), startTime, endTime, color });
+    }
+    onClose();
+  };
+
+  const handleDelete = () => {
+    if (editBlock && onDelete) {
+      onDelete(editBlock.id);
+      onClose();
+    }
+  };
+
+  return (
+    <div
+      ref={backdropRef}
+      className="fixed inset-0 z-50 bg-black/40"
+      onClick={(e) => { if (e.target === backdropRef.current) onClose(); }}
+    >
+      <div
+        ref={sheetRef}
+        className="absolute bottom-0 inset-x-0 bg-white rounded-t-2xl p-5 pb-8 shadow-xl transition-transform duration-200"
+      >
+        {/* Drag handle */}
+        <div className="w-10 h-1 bg-gray-300 rounded-full mx-auto mb-4" />
+
+        {/* Label */}
+        <input
+          type="text"
+          placeholder="What's the activity?"
+          value={label}
+          onChange={(e) => setLabel(e.target.value)}
+          className="w-full text-lg font-medium bg-gray-50 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-200 placeholder:text-gray-400"
+          autoFocus={false}
+        />
+
+        {/* Time pickers */}
+        <div className="flex gap-3 mt-4">
+          <div className="flex-1">
+            <label className="text-xs text-gray-500 mb-1 block">Start</label>
+            <input
+              type="time"
+              value={startTime}
+              onChange={(e) => setStartTime(e.target.value)}
+              className="w-full bg-gray-50 rounded-xl px-4 py-2.5 text-base outline-none focus:ring-2 focus:ring-blue-200"
+            />
+          </div>
+          <div className="flex-1">
+            <label className="text-xs text-gray-500 mb-1 block">End</label>
+            <input
+              type="time"
+              value={endTime}
+              onChange={(e) => setEndTime(e.target.value)}
+              className="w-full bg-gray-50 rounded-xl px-4 py-2.5 text-base outline-none focus:ring-2 focus:ring-blue-200"
+            />
+          </div>
+        </div>
+
+        {/* Color picker */}
+        <div className="mt-4">
+          <label className="text-xs text-gray-500 mb-2 block">Color</label>
+          <div className="flex gap-2.5">
+            {COLOR_PALETTE.map((c) => (
+              <button
+                key={c.value}
+                onClick={() => setColor(c.value)}
+                className="w-8 h-8 rounded-full transition-transform"
+                style={{
+                  backgroundColor: c.value,
+                  transform: color === c.value ? 'scale(1.25)' : 'scale(1)',
+                  boxShadow: color === c.value ? `0 0 0 2px white, 0 0 0 4px ${c.value}` : 'none',
+                }}
+                aria-label={c.name}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Actions */}
+        <div className="flex gap-3 mt-6">
+          {editBlock && onDelete && (
+            <button
+              onClick={handleDelete}
+              className="px-4 py-2.5 rounded-xl text-red-500 bg-red-50 font-medium text-sm active:bg-red-100"
+            >
+              Delete
+            </button>
+          )}
+          <div className="flex-1" />
+          <button
+            onClick={onClose}
+            className="px-4 py-2.5 rounded-xl text-gray-600 bg-gray-100 font-medium text-sm active:bg-gray-200"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={!isValid}
+            className="px-6 py-2.5 rounded-xl text-white bg-blue-500 font-medium text-sm active:bg-blue-600 disabled:opacity-40 disabled:active:bg-blue-500"
+          >
+            {editBlock ? 'Update' : 'Add'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
