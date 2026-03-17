@@ -30,6 +30,14 @@ export function BlockFormModal({
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const backdropRef = useRef<HTMLDivElement>(null);
   const sheetRef = useRef<HTMLDivElement>(null);
+  const [isDark, setIsDark] = useState(() => window.matchMedia('(prefers-color-scheme: dark)').matches);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    const handler = (e: MediaQueryListEvent) => setIsDark(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
 
   useEffect(() => {
     if (isOpen) {
@@ -113,10 +121,10 @@ export function BlockFormModal({
     >
       <div
         ref={sheetRef}
-        className="absolute bottom-0 inset-x-0 bg-white rounded-t-2xl p-5 pb-8 shadow-xl transition-transform duration-200"
+        className="absolute bottom-0 inset-x-0 bg-white dark:bg-gray-800 rounded-t-2xl p-5 pb-8 shadow-xl transition-transform duration-200"
       >
         {/* Drag handle */}
-        <div className="w-10 h-1 bg-gray-300 rounded-full mx-auto mb-4" />
+        <div className="w-10 h-1 bg-gray-300 dark:bg-gray-600 rounded-full mx-auto mb-4" />
 
         {/* Label */}
         <input
@@ -124,35 +132,35 @@ export function BlockFormModal({
           placeholder="Custom activity (or pick a category)"
           value={label}
           onChange={(e) => setLabel(e.target.value)}
-          className="w-full text-lg font-medium bg-gray-50 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-200 placeholder:text-gray-400"
+          className="w-full text-lg font-medium bg-gray-50 dark:bg-gray-700 dark:text-gray-100 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 placeholder:text-gray-400 dark:placeholder:text-gray-500"
           autoFocus={false}
         />
 
         {/* Time pickers */}
         <div className="flex gap-3 mt-4">
           <div className="flex-1">
-            <label className="text-xs text-gray-500 mb-1 block">Start</label>
+            <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Start</label>
             <input
               type="time"
               value={startTime}
               onChange={(e) => setStartTime(e.target.value)}
-              className="w-full bg-gray-50 rounded-xl px-4 py-2.5 text-base outline-none focus:ring-2 focus:ring-blue-200"
+              className="w-full bg-gray-50 dark:bg-gray-700 dark:text-gray-100 rounded-xl px-4 py-2.5 text-base outline-none focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800"
             />
           </div>
           <div className="flex-1">
-            <label className="text-xs text-gray-500 mb-1 block">End</label>
+            <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">End</label>
             <input
               type="time"
               value={endTime}
               onChange={(e) => setEndTime(e.target.value)}
-              className="w-full bg-gray-50 rounded-xl px-4 py-2.5 text-base outline-none focus:ring-2 focus:ring-blue-200"
+              className="w-full bg-gray-50 dark:bg-gray-700 dark:text-gray-100 rounded-xl px-4 py-2.5 text-base outline-none focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800"
             />
           </div>
         </div>
 
         {/* Category selector */}
         <div className="mt-4">
-          <label className="text-xs text-gray-500 mb-2 block">Category</label>
+          <label className="text-xs text-gray-500 dark:text-gray-400 mb-2 block">Category</label>
           <div className="flex gap-2 flex-wrap">
             {CATEGORIES.map((cat) => (
               <button
@@ -162,7 +170,7 @@ export function BlockFormModal({
                 style={{
                   backgroundColor: selectedCategoryId === cat.id ? cat.color : `${cat.color}20`,
                   color: selectedCategoryId === cat.id ? 'white' : cat.color,
-                  boxShadow: selectedCategoryId === cat.id ? `0 0 0 2px white, 0 0 0 3px ${cat.color}` : 'none',
+                  boxShadow: selectedCategoryId === cat.id ? `0 0 0 2px ${isDark ? '#1f2937' : 'white'}, 0 0 0 3px ${cat.color}` : 'none',
                 }}
               >
                 {cat.emoji} {cat.label}
@@ -176,7 +184,7 @@ export function BlockFormModal({
           {editBlock && onDelete && (
             <button
               onClick={handleDelete}
-              className="px-4 py-2.5 rounded-xl text-red-500 bg-red-50 font-medium text-sm active:bg-red-100"
+              className="px-4 py-2.5 rounded-xl text-red-500 bg-red-50 dark:bg-red-900/30 font-medium text-sm active:bg-red-100 dark:active:bg-red-900/50"
             >
               Delete
             </button>
@@ -184,7 +192,7 @@ export function BlockFormModal({
           <div className="flex-1" />
           <button
             onClick={onClose}
-            className="px-4 py-2.5 rounded-xl text-gray-600 bg-gray-100 font-medium text-sm active:bg-gray-200"
+            className="px-4 py-2.5 rounded-xl text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 font-medium text-sm active:bg-gray-200 dark:active:bg-gray-600"
           >
             Cancel
           </button>
