@@ -1,15 +1,16 @@
 import { formatTimeDisplay, minutesToTime } from '../lib/time';
-import { TOTAL_SLOTS } from '../constants';
+import { SLOT_HEIGHT_REM } from '../constants';
 
 interface TimeSlotProps {
   minuteOffset: number;
   isHour: boolean;
   showLabel: boolean;
+  isActive: boolean;
   onTap: (startTime: string, endTime: string) => void;
   slotDuration: number;
 }
 
-export function TimeSlot({ minuteOffset, isHour, showLabel, onTap, slotDuration }: TimeSlotProps) {
+export function TimeSlot({ minuteOffset, isHour, showLabel, isActive, onTap, slotDuration }: TimeSlotProps) {
   const time = minutesToTime(minuteOffset);
   const endTime = minutesToTime(minuteOffset + slotDuration);
 
@@ -17,8 +18,9 @@ export function TimeSlot({ minuteOffset, isHour, showLabel, onTap, slotDuration 
 
   return (
     <div
-      className="relative flex items-start cursor-pointer active:bg-blue-50/40"
-      style={{ height: `${100 / TOTAL_SLOTS}%` }}
+      data-minute-offset={minuteOffset}
+      className="relative flex items-start cursor-pointer"
+      style={{ height: `${SLOT_HEIGHT_REM}rem` }}
       onClick={() => onTap(time, endTime)}
     >
       {showLabel && isHour && (
@@ -31,6 +33,12 @@ export function TimeSlot({ minuteOffset, isHour, showLabel, onTap, slotDuration 
           isHour ? 'border-t border-gray-200' : 'border-t border-dashed border-gray-100'
         }`}
       />
+      {/* Tap feedback highlight — stays active while modal is open */}
+      {isActive && (
+        <div
+          className={`absolute ${lineLeft} right-0 inset-y-0 rounded-sm bg-blue-100 border border-blue-300`}
+        />
+      )}
     </div>
   );
 }

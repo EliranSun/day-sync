@@ -9,6 +9,7 @@ interface TimelineProps {
   type: 'expected' | 'reality';
   blocks: TimeBlockType[];
   showLabels: boolean;
+  activeSlot: number | null;
   onSlotTap: (startTime: string, endTime: string) => void;
   onBlockTap: (block: TimeBlockType) => void;
   onBlockDragEnd: (block: TimeBlockType) => void;
@@ -16,7 +17,7 @@ interface TimelineProps {
   timelineCenterX: number;
 }
 
-export function Timeline({ type, blocks, showLabels, onSlotTap, onBlockTap, onBlockDragEnd, onBlockCrossTimelineDrop, timelineCenterX }: TimelineProps) {
+export function Timeline({ type, blocks, showLabels, activeSlot, onSlotTap, onBlockTap, onBlockDragEnd, onBlockCrossTimelineDrop, timelineCenterX }: TimelineProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerHeight, setContainerHeight] = useState(0);
 
@@ -43,6 +44,7 @@ export function Timeline({ type, blocks, showLabels, onSlotTap, onBlockTap, onBl
         minuteOffset={minuteOffset}
         isHour={isHour}
         showLabel={showLabels}
+        isActive={activeSlot === minuteOffset}
         onTap={onSlotTap}
         slotDuration={SLOT_DURATION_MINUTES}
       />,
@@ -53,25 +55,23 @@ export function Timeline({ type, blocks, showLabels, onSlotTap, onBlockTap, onBl
   const blocksLeftClass = showLabels ? 'left-9' : 'left-0';
 
   return (
-    <div className="flex-1 flex flex-col min-h-0">
-      <div ref={containerRef} className="relative flex-1">
-        {slots}
-        <div className={`absolute inset-y-0 ${blocksLeftClass} right-0 pointer-events-none`}>
-          {blocks.map(block => (
-            <TimeBlock
-              key={block.id}
-              block={block}
-              onTap={onBlockTap}
-              onDragEnd={onBlockDragEnd}
-              onCrossTimelineDrop={onBlockCrossTimelineDrop}
-              containerHeight={containerHeight}
-              timelineCenterX={timelineCenterX}
-              timelineType={type}
-            />
-          ))}
-        </div>
-        {blocks.length === 0 && <EmptyState type={type} />}
+    <div ref={containerRef} className="relative">
+      {slots}
+      <div className={`absolute inset-y-0 ${blocksLeftClass} right-0 pointer-events-none`}>
+        {blocks.map(block => (
+          <TimeBlock
+            key={block.id}
+            block={block}
+            onTap={onBlockTap}
+            onDragEnd={onBlockDragEnd}
+            onCrossTimelineDrop={onBlockCrossTimelineDrop}
+            containerHeight={containerHeight}
+            timelineCenterX={timelineCenterX}
+            timelineType={type}
+          />
+        ))}
       </div>
+      {blocks.length === 0 && <EmptyState type={type} />}
     </div>
   );
 }
