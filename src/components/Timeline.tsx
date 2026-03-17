@@ -12,9 +12,11 @@ interface TimelineProps {
   onSlotTap: (startTime: string, endTime: string) => void;
   onBlockTap: (block: TimeBlockType) => void;
   onBlockDragEnd: (block: TimeBlockType) => void;
+  onBlockCrossTimelineDrop: (block: TimeBlockType) => void;
+  timelineCenterX: number;
 }
 
-export function Timeline({ type, blocks, showLabels, onSlotTap, onBlockTap, onBlockDragEnd }: TimelineProps) {
+export function Timeline({ type, blocks, showLabels, onSlotTap, onBlockTap, onBlockDragEnd, onBlockCrossTimelineDrop, timelineCenterX }: TimelineProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerHeight, setContainerHeight] = useState(0);
 
@@ -61,7 +63,10 @@ export function Timeline({ type, blocks, showLabels, onSlotTap, onBlockTap, onBl
               block={block}
               onTap={onBlockTap}
               onDragEnd={onBlockDragEnd}
+              onCrossTimelineDrop={onBlockCrossTimelineDrop}
               containerHeight={containerHeight}
+              timelineCenterX={timelineCenterX}
+              timelineType={type}
             />
           ))}
         </div>

@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import type { TimeBlock as TimeBlockType } from './types';
 import { getTodayString } from './lib/time';
 import { useDayData } from './hooks/useDayData';
@@ -11,7 +11,24 @@ type TimelineType = 'expected' | 'reality';
 
 function App() {
   const [selectedDate, setSelectedDate] = useState(getTodayString);
-  const { dayData, addBlock, updateBlock, deleteBlock } = useDayData(selectedDate);
+  const { dayData, addBlock, updateBlock, deleteBlock, moveBlock } = useDayData(selectedDate);
+
+  // Track the X coordinate of the boundary between the two timelines
+  const timelinesRef = useRef<HTMLDivElement>(null);
+  const [timelineCenterX, setTimelineCenterX] = useState(0);
+
+  useEffect(() => {
+    const el = timelinesRef.current;
+    if (!el) return;
+    const updateCenter = () => {
+      const rect = el.getBoundingClientRect();
+      setTimelineCenterX(rect.left + rect.width / 2);
+    };
+    updateCenter();
+    const ro = new ResizeObserver(updateCenter);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
 
   // Modal state
   const [modalOpen, setModalOpen] = useState(false);
@@ -50,6 +67,11 @@ function App() {
     updateBlock(type, block);
   }, [updateBlock]);
 
+  const handleCrossTimelineDrop = useCallback((fromType: TimelineType, block: TimeBlockType) => {
+    const toType: TimelineType = fromType === 'expected' ? 'reality' : 'expected';
+    moveBlock(fromType, toType, block);
+  }, [moveBlock]);
+
   return (
     <div className="h-[100dvh] flex flex-col bg-gray-50 overflow-hidden">
       <DatePicker date={selectedDate} onChange={setSelectedDate} />
@@ -65,7 +87,7 @@ function App() {
       </div>
 
       {/* Timelines — always side by side */}
-      <div className="flex-1 flex min-h-0 overflow-hidden">
+      <div ref={timelinesRef} className="flex-1 flex min-h-0 overflow-hidden">
         <div className="flex-1 flex flex-col min-h-0 border-r border-gray-200">
           <Timeline
             type="expected"
@@ -74,6 +96,8 @@ function App() {
             onSlotTap={(s, e) => openCreateModal('expected', s, e)}
             onBlockTap={(b) => openEditModal('expected', b)}
             onBlockDragEnd={(b) => handleDragEnd('expected', b)}
+            onBlockCrossTimelineDrop={(b) => handleCrossTimelineDrop('expected', b)}
+            timelineCenterX={timelineCenterX}
           />
         </div>
         <div className="flex-1 flex flex-col min-h-0">
@@ -84,6 +108,8 @@ function App() {
             onSlotTap={(s, e) => openCreateModal('reality', s, e)}
             onBlockTap={(b) => openEditModal('reality', b)}
             onBlockDragEnd={(b) => handleDragEnd('reality', b)}
+            onBlockCrossTimelineDrop={(b) => handleCrossTimelineDrop('reality', b)}
+            timelineCenterX={timelineCenterX}
           />
         </div>
       </div>

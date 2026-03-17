@@ -45,5 +45,17 @@ export function useDayData(date: string) {
     });
   }, []);
 
-  return { dayData, addBlock, updateBlock, deleteBlock, persist };
+  const moveBlock = useCallback((fromType: 'expected' | 'reality', toType: 'expected' | 'reality', block: TimeBlock) => {
+    setDayData(prev => {
+      const updated = {
+        ...prev,
+        [fromType]: prev[fromType].filter(b => b.id !== block.id),
+        [toType]: [...prev[toType], { ...block, id: crypto.randomUUID() }],
+      };
+      saveDayData(updated);
+      return updated;
+    });
+  }, []);
+
+  return { dayData, addBlock, updateBlock, deleteBlock, moveBlock, persist };
 }
