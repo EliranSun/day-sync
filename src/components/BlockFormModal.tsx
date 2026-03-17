@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import type { TimeBlock, TimeString } from '../types';
-import { COLOR_PALETTE, DEFAULT_COLOR } from '../constants';
+import { CATEGORIES, DEFAULT_COLOR } from '../constants';
 
 interface BlockFormModalProps {
   isOpen: boolean;
@@ -27,6 +27,7 @@ export function BlockFormModal({
   const [startTime, setStartTime] = useState(defaultStartTime);
   const [endTime, setEndTime] = useState(defaultEndTime);
   const [color, setColor] = useState(DEFAULT_COLOR);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const backdropRef = useRef<HTMLDivElement>(null);
   const sheetRef = useRef<HTMLDivElement>(null);
 
@@ -37,11 +38,13 @@ export function BlockFormModal({
         setStartTime(editBlock.startTime);
         setEndTime(editBlock.endTime);
         setColor(editBlock.color);
+        setSelectedCategoryId(editBlock.categoryId ?? null);
       } else {
         setLabel('');
         setStartTime(defaultStartTime);
         setEndTime(defaultEndTime);
         setColor(DEFAULT_COLOR);
+        setSelectedCategoryId(null);
       }
     }
   }, [isOpen, editBlock, defaultStartTime, defaultEndTime]);
@@ -72,12 +75,25 @@ export function BlockFormModal({
 
   const isValid = label.trim().length > 0 && startTime < endTime;
 
+  const handleCategorySelect = (catId: string) => {
+    if (selectedCategoryId === catId) {
+      setSelectedCategoryId(null);
+      setLabel('');
+      setColor(DEFAULT_COLOR);
+    } else {
+      const cat = CATEGORIES.find(c => c.id === catId)!;
+      setSelectedCategoryId(catId);
+      setLabel(`${cat.emoji} ${cat.label}`);
+      setColor(cat.color);
+    }
+  };
+
   const handleSave = () => {
     if (!isValid) return;
     if (editBlock && onUpdate) {
-      onUpdate({ ...editBlock, label: label.trim(), startTime, endTime, color });
+      onUpdate({ ...editBlock, label: label.trim(), startTime, endTime, color, categoryId: selectedCategoryId ?? undefined });
     } else {
-      onSave({ label: label.trim(), startTime, endTime, color });
+      onSave({ label: label.trim(), startTime, endTime, color, categoryId: selectedCategoryId ?? undefined });
     }
     onClose();
   };
@@ -105,7 +121,7 @@ export function BlockFormModal({
         {/* Label */}
         <input
           type="text"
-          placeholder="What's the activity?"
+          placeholder="Custom activity (or pick a category)"
           value={label}
           onChange={(e) => setLabel(e.target.value)}
           className="w-full text-lg font-medium bg-gray-50 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-200 placeholder:text-gray-400"
@@ -134,22 +150,23 @@ export function BlockFormModal({
           </div>
         </div>
 
-        {/* Color picker */}
+        {/* Category selector */}
         <div className="mt-4">
-          <label className="text-xs text-gray-500 mb-2 block">Color</label>
-          <div className="flex gap-2.5">
-            {COLOR_PALETTE.map((c) => (
+          <label className="text-xs text-gray-500 mb-2 block">Category</label>
+          <div className="flex gap-2 flex-wrap">
+            {CATEGORIES.map((cat) => (
               <button
-                key={c.value}
-                onClick={() => setColor(c.value)}
-                className="w-8 h-8 rounded-full transition-transform"
+                key={cat.id}
+                onClick={() => handleCategorySelect(cat.id)}
+                className="px-3 py-1.5 rounded-full text-sm font-medium transition-all"
                 style={{
-                  backgroundColor: c.value,
-                  transform: color === c.value ? 'scale(1.25)' : 'scale(1)',
-                  boxShadow: color === c.value ? `0 0 0 2px white, 0 0 0 4px ${c.value}` : 'none',
+                  backgroundColor: selectedCategoryId === cat.id ? cat.color : `${cat.color}20`,
+                  color: selectedCategoryId === cat.id ? 'white' : cat.color,
+                  boxShadow: selectedCategoryId === cat.id ? `0 0 0 2px white, 0 0 0 3px ${cat.color}` : 'none',
                 }}
-                aria-label={c.name}
-              />
+              >
+                {cat.emoji} {cat.label}
+              </button>
             ))}
           </div>
         </div>
