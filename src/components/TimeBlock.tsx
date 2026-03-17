@@ -144,6 +144,7 @@ export function TimeBlock({ block, onTap, onDragEnd, onCrossTimelineDrop, contai
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
+      onClick={e => e.stopPropagation()}
     >
       <div className={`flex ${isShort ? 'flex-row items-center gap-1' : 'flex-col justify-center'} h-full`}>
         <span className="text-white font-medium text-xs leading-tight truncate">
