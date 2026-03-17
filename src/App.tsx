@@ -8,6 +8,7 @@ import { Timeline } from './components/Timeline';
 import { CurrentTimeLine } from './components/CurrentTimeLine';
 import { BlockFormModal } from './components/BlockFormModal';
 import { MatchBadge } from './components/MatchBadge';
+import { CopyPlanModal } from './components/CopyPlanModal';
 
 type TimelineType = 'expected' | 'reality';
 
@@ -43,6 +44,9 @@ function App() {
     // Center the current time in the viewport
     el.scrollTop = Math.max(0, scrollTarget - el.clientHeight / 3);
   }, [selectedDate]);
+
+  // Copy modal state
+  const [copyModalOpen, setCopyModalOpen] = useState(false);
 
   // Modal state
   const [modalOpen, setModalOpen] = useState(false);
@@ -105,7 +109,12 @@ function App() {
 
   return (
     <div className="h-[100dvh] flex flex-col bg-gray-50 dark:bg-gray-900 overflow-hidden">
-      <DatePicker date={selectedDate} onChange={setSelectedDate} />
+      <DatePicker
+        date={selectedDate}
+        onChange={setSelectedDate}
+        onCopyPlan={() => setCopyModalOpen(true)}
+        hasBlocks={dayData.expected.length > 0}
+      />
 
       {/* Column headers */}
       <div className="flex border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
@@ -159,6 +168,17 @@ function App() {
         editBlock={editingBlock}
         defaultStartTime={defaultStart}
         defaultEndTime={defaultEnd}
+      />
+
+      <CopyPlanModal
+        isOpen={copyModalOpen}
+        onClose={() => setCopyModalOpen(false)}
+        sourceDate={selectedDate}
+        blockCount={dayData.expected.length}
+        onCopyComplete={(targetDate) => {
+          setCopyModalOpen(false);
+          setSelectedDate(targetDate);
+        }}
       />
 
       <MatchBadge expected={dayData.expected} reality={dayData.reality} />

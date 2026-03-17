@@ -3,9 +3,11 @@ import { formatDate, isToday, addDays, getTodayString } from '../lib/time';
 interface DatePickerProps {
   date: string;
   onChange: (date: string) => void;
+  onCopyPlan?: () => void;
+  hasBlocks?: boolean;
 }
 
-export function DatePicker({ date, onChange }: DatePickerProps) {
+export function DatePicker({ date, onChange, onCopyPlan, hasBlocks }: DatePickerProps) {
   return (
     <div className="flex items-center justify-between px-4 py-3 bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
       <button
@@ -26,6 +28,18 @@ export function DatePicker({ date, onChange }: DatePickerProps) {
             className="text-xs px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-medium"
           >
             Today
+          </button>
+        )}
+        {hasBlocks && onCopyPlan && (
+          <button
+            onClick={onCopyPlan}
+            className="p-1.5 rounded-lg active:bg-gray-100 dark:active:bg-gray-700 text-gray-400 dark:text-gray-500"
+            aria-label="Copy plan to another day"
+          >
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="6" y="6" width="12" height="12" rx="2" />
+              <path d="M2 14V4a2 2 0 012-2h10" />
+            </svg>
           </button>
         )}
       </div>

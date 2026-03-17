@@ -9,7 +9,10 @@
       "Bash(where npx.cmd)",
       "Bash(npm install:*)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(PATH=\"$PATH:./node_modules/.bin\" tsc --noEmit)",
+      "Bash(export PATH=\"/opt/homebrew/bin:/usr/local/bin:$PATH\")",
+      "Bash(source ~/.zshrc)"
     ]
   }
 }
