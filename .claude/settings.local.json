@@ -14,7 +14,9 @@
       "Bash(export PATH=\"/opt/homebrew/bin:/usr/local/bin:$PATH\")",
       "Bash(source ~/.zshrc)",
       "Bash(npm run:*)",
-      "Bash(grep -r \"VAPID\\\\|web-push\\\\|webpush\\\\|service.*worker\" /d/Projects/day-sync/src --include=*.ts --include=*.tsx)"
+      "Bash(grep -r \"VAPID\\\\|web-push\\\\|webpush\\\\|service.*worker\" /d/Projects/day-sync/src --include=*.ts --include=*.tsx)",
+      "Bash(npx web-push:*)",
+      "Bash(npx vercel:*)"
     ]
   }
 }
