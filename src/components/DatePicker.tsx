@@ -5,9 +5,11 @@ interface DatePickerProps {
   onChange: (date: string) => void;
   onCopyPlan?: () => void;
   hasBlocks?: boolean;
+  notificationPermission?: NotificationPermission;
+  onNotificationToggle?: () => void;
 }
 
-export function DatePicker({ date, onChange, onCopyPlan, hasBlocks }: DatePickerProps) {
+export function DatePicker({ date, onChange, onCopyPlan, hasBlocks, notificationPermission, onNotificationToggle }: DatePickerProps) {
   return (
     <div className="flex items-center justify-between px-4 py-3 bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
       <button
@@ -40,6 +42,28 @@ export function DatePicker({ date, onChange, onCopyPlan, hasBlocks }: DatePicker
               <rect x="6" y="6" width="12" height="12" rx="2" />
               <path d="M2 14V4a2 2 0 012-2h10" />
             </svg>
+          </button>
+        )}
+        {onNotificationToggle && notificationPermission !== 'denied' && (
+          <button
+            onClick={onNotificationToggle}
+            className={`p-1.5 rounded-lg active:bg-gray-100 dark:active:bg-gray-700 ${
+              notificationPermission === 'granted'
+                ? 'text-blue-500 dark:text-blue-400'
+                : 'text-gray-400 dark:text-gray-500'
+            }`}
+            aria-label={notificationPermission === 'granted' ? 'Notifications on' : 'Enable notifications'}
+          >
+            {notificationPermission === 'granted' ? (
+              <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" stroke="none">
+                <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a2 2 0 01-2-2h4a2 2 0 01-2 2z" />
+              </svg>
+            ) : (
+              <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6z" />
+                <path d="M10 18a2 2 0 01-2-2h4a2 2 0 01-2 2z" />
+              </svg>
+            )}
           </button>
         )}
       </div>

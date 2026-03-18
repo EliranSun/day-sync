@@ -3,6 +3,7 @@ import type { TimeBlock as TimeBlockType } from './types';
 import { getTodayString, isToday, timeToMinutes } from './lib/time';
 import { DAY_START_MINUTES, TOTAL_MINUTES, SLOT_HEIGHT_REM, TOTAL_SLOTS } from './constants';
 import { useDayData } from './hooks/useDayData';
+import { useNotifications } from './hooks/useNotifications';
 import { DatePicker } from './components/DatePicker';
 import { Timeline } from './components/Timeline';
 import { CurrentTimeLine } from './components/CurrentTimeLine';
@@ -15,6 +16,7 @@ type TimelineType = 'expected' | 'reality';
 function App() {
   const [selectedDate, setSelectedDate] = useState(getTodayString);
   const { dayData, addBlock, updateBlock, deleteBlock, moveBlock } = useDayData(selectedDate);
+  const { permission: notifPermission, requestPermission, supported: notifSupported } = useNotifications(dayData.expected, selectedDate);
 
   // Track the X coordinate of the boundary between the two timelines
   const timelinesRef = useRef<HTMLDivElement>(null);
@@ -114,6 +116,8 @@ function App() {
         onChange={setSelectedDate}
         onCopyPlan={() => setCopyModalOpen(true)}
         hasBlocks={dayData.expected.length > 0}
+        notificationPermission={notifSupported ? notifPermission : undefined}
+        onNotificationToggle={notifSupported ? requestPermission : undefined}
       />
 
       {/* Column headers */}
