@@ -45,3 +45,76 @@ export function isToday(dateStr: string): boolean {
 export function snapToIncrement(minutes: number, increment: number): number {
   return Math.round(minutes / increment) * increment;
 }
+
+/**
+ * Compute column layout for overlapping time blocks.
+ * Returns a map of block id → { column, totalColumns }.
+ */
+export function computeOverlapLayout(blocks: { id: string; startTime: string; endTime: string }[]): Map<string, { column: number; totalColumns: number }> {
+  if (blocks.length === 0) return new Map();
+
+  // Sort by start time, then by longer duration first
+  const sorted = [...blocks].sort((a, b) => {
+    const aStart = timeToMinutes(a.startTime);
+    const bStart = timeToMinutes(b.startTime);
+    if (aStart !== bStart) return aStart - bStart;
+    return timeToMinutes(b.endTime) - timeToMinutes(a.endTime);
+  });
+
+  // Build overlap groups: clusters of mutually overlapping blocks
+  const groups: typeof sorted[] = [];
+  let currentGroup: typeof sorted = [sorted[0]];
+  let groupEnd = timeToMinutes(sorted[0].endTime);
+
+  for (let i = 1; i < sorted.length; i++) {
+    const blockStart = timeToMinutes(sorted[i].startTime);
+    if (blockStart < groupEnd) {
+      // Overlaps with current group
+      currentGroup.push(sorted[i]);
+      groupEnd = Math.max(groupEnd, timeToMinutes(sorted[i].endTime));
+    } else {
+      groups.push(currentGroup);
+      currentGroup = [sorted[i]];
+      groupEnd = timeToMinutes(sorted[i].endTime);
+    }
+  }
+  groups.push(currentGroup);
+
+  // Assign columns within each group
+  const result = new Map<string, { column: number; totalColumns: number }>();
+
+  for (const group of groups) {
+    if (group.length === 1) {
+      result.set(group[0].id, { column: 0, totalColumns: 1 });
+      continue;
+    }
+
+    // Greedy column assignment
+    const columns: number[] = []; // end time of last block in each column
+    const assignments: number[] = [];
+
+    for (const block of group) {
+      const start = timeToMinutes(block.startTime);
+      let placed = false;
+      for (let c = 0; c < columns.length; c++) {
+        if (columns[c] <= start) {
+          columns[c] = timeToMinutes(block.endTime);
+          assignments.push(c);
+          placed = true;
+          break;
+        }
+      }
+      if (!placed) {
+        assignments.push(columns.length);
+        columns.push(timeToMinutes(block.endTime));
+      }
+    }
+
+    const totalColumns = columns.length;
+    for (let i = 0; i < group.length; i++) {
+      result.set(group[i].id, { column: assignments[i], totalColumns });
+    }
+  }
+
+  return result;
+}

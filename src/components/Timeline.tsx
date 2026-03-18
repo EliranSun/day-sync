@@ -1,6 +1,7 @@
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect, useMemo } from 'react';
 import type { TimeBlock as TimeBlockType } from '../types';
 import { DAY_START_HOUR, SLOT_DURATION_MINUTES, TOTAL_SLOTS } from '../constants';
+import { computeOverlapLayout } from '../lib/time';
 import { TimeSlot } from './TimeSlot';
 import { TimeBlock } from './TimeBlock';
 import { EmptyState } from './EmptyState';
@@ -51,6 +52,8 @@ export function Timeline({ type, blocks, showLabels, activeSlot, onSlotTap, onBl
     );
   }
 
+  const overlapLayout = useMemo(() => computeOverlapLayout(blocks), [blocks]);
+
   // On mobile (no labels), blocks fill the full width; with labels, offset from them
   const blocksLeftClass = showLabels ? 'left-9' : 'left-0';
 
@@ -58,18 +61,23 @@ export function Timeline({ type, blocks, showLabels, activeSlot, onSlotTap, onBl
     <div ref={containerRef} className="relative">
       {slots}
       <div className={`absolute inset-y-0 ${blocksLeftClass} right-0 pointer-events-none`}>
-        {blocks.map(block => (
-          <TimeBlock
-            key={block.id}
-            block={block}
-            onTap={onBlockTap}
-            onDragEnd={onBlockDragEnd}
-            onCrossTimelineDrop={onBlockCrossTimelineDrop}
-            containerHeight={containerHeight}
-            timelineCenterX={timelineCenterX}
-            timelineType={type}
-          />
-        ))}
+        {blocks.map(block => {
+          const layout = overlapLayout.get(block.id) || { column: 0, totalColumns: 1 };
+          return (
+            <TimeBlock
+              key={block.id}
+              block={block}
+              onTap={onBlockTap}
+              onDragEnd={onBlockDragEnd}
+              onCrossTimelineDrop={onBlockCrossTimelineDrop}
+              containerHeight={containerHeight}
+              timelineCenterX={timelineCenterX}
+              timelineType={type}
+              column={layout.column}
+              totalColumns={layout.totalColumns}
+            />
+          );
+        })}
       </div>
       {blocks.length === 0 && <EmptyState type={type} />}
     </div>

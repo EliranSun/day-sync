@@ -11,9 +11,11 @@ interface TimeBlockProps {
   containerHeight: number;
   timelineCenterX: number;
   timelineType: 'expected' | 'reality';
+  column: number;
+  totalColumns: number;
 }
 
-export function TimeBlock({ block, onTap, onDragEnd, onCrossTimelineDrop, containerHeight, timelineCenterX, timelineType }: TimeBlockProps) {
+export function TimeBlock({ block, onTap, onDragEnd, onCrossTimelineDrop, containerHeight, timelineCenterX, timelineType, column, totalColumns }: TimeBlockProps) {
   const dragState = useRef<{
     startY: number;
     startX: number;
@@ -131,10 +133,12 @@ export function TimeBlock({ block, onTap, onDragEnd, onCrossTimelineDrop, contai
   return (
     <div
       ref={blockRef}
-      className="absolute left-0 right-0 mx-1 rounded-lg px-2 overflow-hidden cursor-grab active:cursor-grabbing select-none pointer-events-auto"
+      className="absolute rounded-lg px-2 overflow-hidden cursor-grab active:cursor-grabbing select-none pointer-events-auto"
       style={{
         top: `${topPct}%`,
         height: `${heightPct}%`,
+        left: `calc(${(column / totalColumns) * 100}% + 4px)`,
+        width: `calc(${100 / totalColumns}% - 8px)`,
         backgroundColor: block.color,
         touchAction: 'none',
         minHeight: '18px',

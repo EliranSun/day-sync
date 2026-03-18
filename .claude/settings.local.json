@@ -12,7 +12,8 @@
       "Bash(git commit:*)",
       "Bash(PATH=\"$PATH:./node_modules/.bin\" tsc --noEmit)",
       "Bash(export PATH=\"/opt/homebrew/bin:/usr/local/bin:$PATH\")",
-      "Bash(source ~/.zshrc)"
+      "Bash(source ~/.zshrc)",
+      "Bash(npm run:*)"
     ]
   }
 }
