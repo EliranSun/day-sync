@@ -15,6 +15,7 @@ export const CATEGORIES: Category[] = [
   { id: 'noga',      label: 'Noga',      emoji: '👶', color: '#14B8A6' },
   { id: 'wife',      label: 'Wife',      emoji: '💕', color: '#EC4899' },
   { id: 'read',      label: 'Read',      emoji: '📖', color: '#A855F7' },
+  { id: 'yoga',      label: 'Yoga',      emoji: '🧘', color: '#22C55E' },
 ];
 
 export const COLOR_PALETTE = [
