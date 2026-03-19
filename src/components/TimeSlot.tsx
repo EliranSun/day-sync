@@ -12,7 +12,6 @@ interface TimeSlotProps {
 
 export function TimeSlot({ minuteOffset, isHour, showLabel, isActive, onTap, slotDuration }: TimeSlotProps) {
   const time = minutesToTime(minuteOffset);
-  const endTime = minutesToTime(minuteOffset + slotDuration);
 
   const lineLeft = showLabel ? 'left-9' : 'left-0';
 
