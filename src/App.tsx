@@ -10,6 +10,7 @@ import { CurrentTimeLine } from './components/CurrentTimeLine';
 import { BlockFormModal } from './components/BlockFormModal';
 import { MatchBadge } from './components/MatchBadge';
 import { CopyPlanModal } from './components/CopyPlanModal';
+import { DataManagementModal } from './components/DataManagementModal';
 
 type TimelineType = 'expected' | 'reality';
 
@@ -49,6 +50,9 @@ function App() {
 
   // Copy modal state
   const [copyModalOpen, setCopyModalOpen] = useState(false);
+
+  // Data management modal state
+  const [dataModalOpen, setDataModalOpen] = useState(false);
 
   // Modal state
   const [modalOpen, setModalOpen] = useState(false);
@@ -118,6 +122,7 @@ function App() {
         hasBlocks={dayData.expected.length > 0}
         notificationPermission={notifSupported ? notifPermission : undefined}
         onNotificationToggle={notifSupported ? requestPermission : undefined}
+        onDataManagement={() => setDataModalOpen(true)}
       />
 
       {/* Column headers */}
@@ -182,6 +187,16 @@ function App() {
         onCopyComplete={(targetDate) => {
           setCopyModalOpen(false);
           setSelectedDate(targetDate);
+        }}
+      />
+
+      <DataManagementModal
+        isOpen={dataModalOpen}
+        onClose={() => setDataModalOpen(false)}
+        onImportComplete={() => {
+          setDataModalOpen(false);
+          // Re-trigger useDayData to reload from localStorage
+          setSelectedDate(d => d);
         }}
       />
 

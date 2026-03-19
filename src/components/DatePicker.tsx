@@ -7,9 +7,10 @@ interface DatePickerProps {
   hasBlocks?: boolean;
   notificationPermission?: NotificationPermission;
   onNotificationToggle?: () => void;
+  onDataManagement?: () => void;
 }
 
-export function DatePicker({ date, onChange, onCopyPlan, hasBlocks, notificationPermission, onNotificationToggle }: DatePickerProps) {
+export function DatePicker({ date, onChange, onCopyPlan, hasBlocks, notificationPermission, onNotificationToggle, onDataManagement }: DatePickerProps) {
   return (
     <div className="flex items-center justify-between px-4 py-3 bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
       <button
@@ -64,6 +65,19 @@ export function DatePicker({ date, onChange, onCopyPlan, hasBlocks, notification
                 <path d="M10 18a2 2 0 01-2-2h4a2 2 0 01-2 2z" />
               </svg>
             )}
+          </button>
+        )}
+        {onDataManagement && (
+          <button
+            onClick={onDataManagement}
+            className="p-1.5 rounded-lg active:bg-gray-100 dark:active:bg-gray-700 text-gray-400 dark:text-gray-500"
+            aria-label="Export or import data"
+          >
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <ellipse cx="10" cy="5" rx="7" ry="2.5" />
+              <path d="M3 5v4c0 1.38 3.13 2.5 7 2.5s7-1.12 7-2.5V5" />
+              <path d="M3 9v4c0 1.38 3.13 2.5 7 2.5s7-1.12 7-2.5V9" />
+            </svg>
           </button>
         )}
       </div>
