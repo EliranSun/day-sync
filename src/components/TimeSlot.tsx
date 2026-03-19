@@ -21,7 +21,12 @@ export function TimeSlot({ minuteOffset, isHour, showLabel, isActive, onTap, slo
       data-minute-offset={minuteOffset}
       className="relative flex items-start cursor-pointer"
       style={{ height: `${SLOT_HEIGHT_REM}rem` }}
-      onClick={() => onTap(time, endTime)}
+      onClick={(e) => {
+        const rect = e.currentTarget.getBoundingClientRect();
+        const snapTo30 = (e.clientY - rect.top) >= rect.height / 2;
+        const snapMinutes = snapTo30 ? 30 : 0;
+        onTap(minutesToTime(minuteOffset + snapMinutes), minutesToTime(minuteOffset + snapMinutes + slotDuration));
+      }}
     >
       {showLabel && isHour && (
         <span className="absolute top-0 left-0 text-[9px] leading-none w-8 text-right pr-1 text-gray-400 dark:text-gray-500 font-medium">
